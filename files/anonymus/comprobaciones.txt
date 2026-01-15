@@ -1,0 +1,2 @@
+ss -tuln | grep :21
+ftp localhost
