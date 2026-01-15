@@ -6,10 +6,10 @@ Vagrant.configure("2") do |config|
       vb.cpus = 2
   end # vb
 
-  config.vm.define "anonymus" do |anonymus|
-    anonymus.vm.hostname = "mirror.sistema.sol"
-    anonymus.vm.network "private_network", ip: "192.168.58.10",  virtualbox__intnet: "internal"
-  end #anonymus
+  config.vm.define "anonymous" do |anonymous|
+    anonymous.vm.hostname = "mirror.sistema.sol"
+    anonymous.vm.network "private_network", ip: "192.168.58.10",  virtualbox__intnet: "internal"
+  end #anonymous
 
   config.vm.define "secure" do |secure|
     secure.vm.hostname = "cliente"

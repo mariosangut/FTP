@@ -1,0 +1,60 @@
+# ======================================================
+# SERVERS CONFIGURATION
+# ======================================================
+
+- name: TASK 1. GLOBAL CONFIGURATION
+  hosts: servers
+  become: true
+  tasks:
+    - name: Synchronize system time
+      ansible.builtin.command: timedatectl set-timezone Europe/Madrid
+      changed_when: false
+
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: true
+
+    - name: Install vsftpd
+      ansible.builtin.apt:
+        name: vsftpd
+        state: present
+
+    - name: Install ftp (client)
+      ansible.builtin.apt:
+        name: ftp
+        state: present
+
+- name: TASK 2. ANONYMOUS FTP
+  hosts: anonymous 
+  become: true
+  tasks: 
+    - name: vsftpd config
+      ansible.builtin.copy:
+        src: ../files/anonymous/vsftpd.conf 
+        dest: /etc/vsftpd.conf
+        owner: root
+        group: root
+        mode: '0640'
+        backup: true
+    
+    - name: Create directory
+      ansible.builtin.file:
+        path: /srv/ftp
+        state: directory
+        owner: root
+        group: ftp
+        mode: '0755'
+
+    - name: Messagge
+      ansible.builtin.copy:
+        src: ../files/anonymous/.message
+        dest: /srv/ftp/.message
+        owner: root
+        group: root
+        mode: '0644'
+        backup: true
+
+    - name: Restart service
+      ansible.builtin.systemd:
+        name: vsftpd
+        state: restarted

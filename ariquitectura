@@ -1,0 +1,19 @@
+┌──────────────────────┐
+│  MV 1: ftp-anon      │
+│----------------------│
+│ vsftpd               │
+│ anonymous_enable=YES │
+│ local_enable=NO      │
+│ NO SSL               │
+│ /srv/ftp             │
+└──────────────────────┘
+
+┌──────────────────────┐
+│  MV 2: ftp-secure    │
+│----------------------│
+│ vsftpd               │
+│ anonymous_enable=YES │ 
+│ local_enable=YES     │
+│ SSL/TLS obligatorio  │
+│ usuarios locales     │
+└──────────────────────┘
