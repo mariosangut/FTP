@@ -1,7 +1,6 @@
 - name: FTP Secure Server - System checks and user setup
   hosts: secure
   become: true
-
   tasks:
     - name: Verify ftp system user exists
       ansible.builtin.command: getent passwd ftp
@@ -78,11 +77,11 @@
         create_home: true
         password: "{{ item.password_hash }}"
       loop:
-        - name: luis
+        - name: luis #luis123
           password_hash: "$6$UcAGmfZ5oiFzP.rT$08jwkKYHLvITqLdMZ1M8lG0gtIiT1jFZa7wXDOIhhaWDjYGvBiRctUH9cS3iiMn0EMnS9Yu.B/pLLp.dcSE.M0"
-        - name: maria
+        - name: maria #maria123
           password_hash: "$6$g7UqNyYyinr7TQBu$3DuFdvJ4lGRU28d3CnfS.8tJI.cLH4h1A4kz30cccJrYbKu.5HqixFiUjdUYr9sHRSLorWFgaJj/vDqT2Vdo9/"
-        - name: miguel
+        - name: miguel #migue123
           password_hash: "$6$ZJ6YNm4c4ypBt905$EJ90EuiMiemf22Tf5O.vSxIai87ePkrb.hXEdIUzOYv0.o4D8kbZq/jUyrF4wSqTvO4GIEewQ4BIb1zns256y1"
 
     - name: Create test files in luis home directory
@@ -109,9 +108,30 @@
 
     - name: Message
       ansible.builtin.copy:
-        src: ../files/anonymous/.message
+        src: ../files/secure/.message
         dest: /srv/ftp/.message
         owner: root
         group: root
         mode: '0644'
         backup: true
+
+    - name: vsftpd.conf
+      ansible.builtin.copy:
+        src: ../files/secure/vsftpd.conf
+        dest: /etc/vsftpd.conf
+        owner: root
+        group: root
+        mode: '0640'
+        backup: true
+    
+    - name: vsftpd.chroot_list
+      ansible.builtin.copy:
+        src: ../files/secure/vsftpd.chroot_list
+        dest: /etc/vsftpd.chroot_list
+        owner: root
+        group: root
+        mode: '0640'
+        backup: true
+    
+
+
