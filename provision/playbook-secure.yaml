@@ -70,15 +70,16 @@
         group: root
         mode: '0644'
 
-    - name: Create local FTP users
+    - name: Create local FTP users with passwords
       ansible.builtin.user:
-        name: "{{ item }}"
+        name: "{{ item.name }}"
         shell: /bin/bash
         create_home: true
+        password: "{{ item.password | password_hash('sha512') }}"
       loop:
-        - luis
-        - maria
-        - miguel
+        - { name: luis,   password: luis123 }
+        - { name: maria,  password: maria123 }
+        - { name: miguel, password: miguel123 }
 
     - name: Create test files in luis home directory
       ansible.builtin.copy:
@@ -101,3 +102,12 @@
       loop:
         - maria1.txt
         - maria2.txt
+
+    - name: Message
+      ansible.builtin.copy:
+        src: ../files/anonymous/.message
+        dest: /srv/ftp/.message
+        owner: root
+        group: root
+        mode: '0644'
+        backup: true
