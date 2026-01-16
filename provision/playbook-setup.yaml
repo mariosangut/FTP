@@ -24,6 +24,10 @@
         name: ftp
         state: present
 
+# ======================================================
+# SERVER 1 CONFIGURATION
+# ======================================================
+
 - name: TASK 2. ANONYMOUS FTP
   hosts: anonymous 
   become: true
@@ -45,7 +49,7 @@
         group: ftp
         mode: '0755'
 
-    - name: Messagge
+    - name: Message
       ansible.builtin.copy:
         src: ../files/anonymous/.message
         dest: /srv/ftp/.message
@@ -58,3 +62,41 @@
       ansible.builtin.systemd:
         name: vsftpd
         state: restarted
+
+# ======================================================
+# SERVER 2 CONFIGURATION
+# ======================================================      
+
+- name: TASK 3. SECURE FTP
+  hosts: secure
+  become: true
+  tasks: 
+    - name: Verify ftp system user exists
+      ansible.builtin.command: getent passwd ftp
+      register: ftp_user
+      changed_when: false
+
+    - name: Show ftp user
+      ansible.bultin.debug: 
+        var: ftp_user.stdout
+
+    - name: Verify ftp group
+      ansible.builtin.command: getent group ftp
+      register: ftp_group
+      changed_when: false
+
+    - name: Show ftp group
+      ansible.bultin.debug: 
+        var: ftp_group.stdout
+
+    - name: Check permission /srv/ftp
+      ansible.builtin.stat:
+        path: /srv/ftp
+      register: srv_ftp
+
+    - name: Show permission /srv/ftp
+      ansible.builtin.debug:
+        msg:
+          - "Owner: {{ srv_ftp.stat.pw_name }}"
+          - "Group: {{ srv_ftp.stat.gr_name }}"
+          - "Permisos: {{ srv_ftp.stat.mode }}"

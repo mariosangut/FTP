@@ -12,7 +12,7 @@ Vagrant.configure("2") do |config|
   end #anonymous
 
   config.vm.define "secure" do |secure|
-    secure.vm.hostname = "cliente"
+    secure.vm.hostname = "ftp-secure"
     secure.vm.network "private_network", ip: "192.168.58.20", virtualbox__intnet: "internal"
   end #secure
 end
