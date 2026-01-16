@@ -1,0 +1,64 @@
+- name: FTP Secure Server - System checks and user setup
+  hosts: secure
+  become: true
+
+  tasks:
+    - name: Verify ftp system user exists
+      ansible.builtin.command: getent passwd ftp
+      register: ftp_user
+      changed_when: false
+
+    - name: Show ftp system user information
+      ansible.builtin.debug:
+        var: ftp_user.stdout
+
+    - name: Verify ftp group exists
+      ansible.builtin.command: getent group ftp
+      register: ftp_group
+      changed_when: false
+
+    - name: Show ftp group information
+      ansible.builtin.debug:
+        var: ftp_group.stdout
+
+    - name: Check /srv/ftp directory ownership and permissions
+      ansible.builtin.stat:
+        path: /srv/ftp
+      register: srv_ftp
+
+    - name: Show /srv/ftp directory details
+      ansible.builtin.debug:
+        msg:
+          - "Owner: {{ srv_ftp.stat.pw_name }}"
+          - "Group: {{ srv_ftp.stat.gr_name }}"
+          - "Permissions: {{ srv_ftp.stat.mode }}"
+
+    # Users with shell set to nologin or false cannot access FTP
+
+    - name: List system users without FTP access
+      ansible.builtin.command: >
+        awk -F: '$7 ~ /(nologin|false)$/ { print $1 }' /etc/passwd
+      register: no_ftp_users
+      changed_when: false
+
+    - name: Show users without FTP access
+      ansible.builtin.debug:
+        var: no_ftp_users.stdout_lines
+
+    - name: Gather service facts
+      ansible.builtin.service_facts:
+
+    - name: Verify vsftpd service is running
+      ansible.builtin.debug:
+        msg: "vsftpd service state: {{ ansible_facts.services['vsftpd.service'].state }}"
+
+    - name: Verify FTP server is listening on TCP port 21
+      ansible.builtin.shell: ss -tulnp | grep :21
+      register: port21
+      changed_when: false
+
+    - name: Show port 21 listening status
+      ansible.builtin.debug:
+        var: port21.stdout
+
+    
