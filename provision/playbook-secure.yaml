@@ -61,4 +61,43 @@
       ansible.builtin.debug:
         var: port21.stdout
 
-    
+    - name: Create backup of vsftpd configuration file
+      ansible.builtin.copy:
+        src: /etc/vsftpd.conf
+        dest: /etc/vsftpd.conf.bak
+        remote_src: true
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Create local FTP users
+      ansible.builtin.user:
+        name: "{{ item }}"
+        shell: /bin/bash
+        create_home: true
+      loop:
+        - luis
+        - maria
+        - miguel
+
+    - name: Create test files in luis home directory
+      ansible.builtin.copy:
+        dest: "/home/luis/{{ item }}"
+        content: "Test file {{ item }} created for user luis\n"
+        owner: luis
+        group: luis
+        mode: '0644'
+      loop:
+        - luis1.txt
+        - luis2.txt
+
+    - name: Create test files in maria home directory
+      ansible.builtin.copy:
+        dest: "/home/maria/{{ item }}"
+        content: "Test file {{ item }} created for user maria\n"
+        owner: maria
+        group: maria
+        mode: '0644'
+      loop:
+        - maria1.txt
+        - maria2.txt
