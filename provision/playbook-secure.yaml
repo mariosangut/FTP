@@ -70,6 +70,12 @@
         group: root
         mode: '0644'
 
+    - name: Install passlib for password hashing
+      ansible.builtin.apt:
+        name: python3-passlib
+        state: present
+        update_cache: true
+        
     - name: Create local FTP users with passwords
       ansible.builtin.user:
         name: "{{ item.name }}"
