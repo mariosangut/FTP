@@ -133,5 +133,28 @@
         mode: '0640'
         backup: true
     
+    - name: Generate SSL certificate for FTPS server
+      ansible.builtin.command: >
+        openssl req -x509 -nodes -days 365
+        -newkey rsa:2048
+        -keyout /etc/ssl/certs/example.test.pem
+        -out /etc/ssl/certs/example.test.pem
+        -subj "/C=ES/ST=Lab/L=Lab/O=sistema.sol/OU=IT/CN=ftp.example.test"
+      args:
+        creates: /etc/ssl/certs/example.test.pem
 
+    - name: Restart vsftpd service
+      ansible.builtin.service:
+        name: vsftpd
+        state: restarted
 
+    - name: Verify vsftpd service is running
+      ansible.builtin.service_facts:
+
+    - name: Show vsftpd service state
+      ansible.builtin.debug:
+        msg: "vsftpd service state: {{ ansible_facts.services['vsftpd.service'].state }}"
+
+    - name: Verify FTP server is listening on TCP port 21
+      ansible.builtin.shell: ss -tulnp | grep :21
+      changed_when: false
