@@ -100,3 +100,13 @@
           - "Owner: {{ srv_ftp.stat.pw_name }}"
           - "Group: {{ srv_ftp.stat.gr_name }}"
           - "Permisos: {{ srv_ftp.stat.mode }}"
+
+    - name: List system users without FTP access
+      ansible.builtin.command: >
+        awk -F: '$7 ~ /(nologin|false)$/ { print $1 }' /etc/passwd
+      register: no_ftp_users
+      changed_when: false
+
+    - name: Show system users without FTP access
+      ansible.builtin.debug:
+        var: no_ftp_users.stdout_lines
