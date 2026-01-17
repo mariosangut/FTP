@@ -11,6 +11,15 @@
       ansible.builtin.command: timedatectl set-timezone Europe/Madrid
       changed_when: false
 
+    - name: Change DNS resolv
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/files/resolv.conf"
+        dest: /etc/resolv.conf
+        owner: root
+        group: root
+        mode: "0644"
+        backup: true
+
     - name: Update apt cache
       ansible.builtin.apt:
         update_cache: true
@@ -104,15 +113,14 @@
 
     # Users with shell set to nologin or false cannot access FTP
 
-    - name: List system users without FTP access
-      ansible.builtin.command: >
-        awk -F: '$7 ~ /(nologin|false)$/ { print $1 }' /etc/passwd
-      register: no_ftp_users
+    - name: List users denied FTP access
+      ansible.builtin.command: cat /etc/ftpusers
+      register: ftpusers_denied
       changed_when: false
 
-    - name: Show users without FTP access
+    - name: Show users denied FTP access
       ansible.builtin.debug:
-        var: no_ftp_users.stdout_lines
+        msg: "{{ ftpusers_denied.stdout_lines }}"
 
     - name: Gather service facts
       ansible.builtin.service_facts:
