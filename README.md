@@ -26,7 +26,26 @@ El proyecto se ha desarrollado en un entorno académico con el objetivo de aplic
 ## Estructura del repositorio
 
 ```text
-
+├── README.md
+├── Vagrantfile
+├── ansible.cfg
+├── docs
+│   ├── arquitectura
+│   ├── evidences
+│   │   ├── ansible-lint-after.png
+│   │   └── ansible-lint-before.png
+│   ├── ftp-anonimo.html
+│   ├── ftp-seguro.html
+│   └── proyecto-vagrant-ansible.html
+├── files
+│   ├── anonymous
+│   │   ├── comprobaciones.txt
+│   │   └── vsftpd.conf
+│   └── secure
+│       ├── vsftpd.chroot_list
+│       └── vsftpd.conf
+├── hosts.ini
+└── playbook-setup.yaml
 ```
 ## Arquitectura general
 
