@@ -1,3 +1,4 @@
+---
 # ======================================================
 # SERVERS CONFIGURATION
 # ======================================================
@@ -29,25 +30,25 @@
 # ======================================================
 
 - name: TASK 2. ANONYMOUS FTP
-  hosts: anonymous 
+  hosts: anonymous
   become: true
-  tasks: 
-    - name: vsftpd config
+  tasks:
+    - name: Vsftpd config
       ansible.builtin.copy:
-        src: ../files/anonymous/vsftpd.conf 
+        src: ../files/anonymous/vsftpd.conf
         dest: /etc/vsftpd.conf
         owner: root
         group: root
-        mode: '0640'
+        mode: "0640"
         backup: true
-    
+
     - name: Create directory
       ansible.builtin.file:
         path: /srv/ftp
         state: directory
         owner: root
         group: ftp
-        mode: '0755'
+        mode: "0755"
 
     - name: Message
       ansible.builtin.copy:
@@ -55,7 +56,7 @@
         dest: /srv/ftp/.message
         owner: root
         group: root
-        mode: '0644'
+        mode: "0644"
         backup: true
 
     - name: Restart service
@@ -70,36 +71,38 @@
 - name: TASK 3. SECURE FTP
   hosts: secure
   become: true
-  tasks: 
+  tasks:
     - name: Verify ftp system user exists
       ansible.builtin.command: getent passwd ftp
       register: ftp_user
       changed_when: false
 
-    - name: Show ftp user
-      ansible.bultin.debug: 
+    - name: Show ftp system user information
+      ansible.builtin.debug:
         var: ftp_user.stdout
 
-    - name: Verify ftp group
+    - name: Verify ftp group exists
       ansible.builtin.command: getent group ftp
       register: ftp_group
       changed_when: false
 
-    - name: Show ftp group
-      ansible.bultin.debug: 
+    - name: Show ftp group information
+      ansible.builtin.debug:
         var: ftp_group.stdout
 
-    - name: Check permission /srv/ftp
+    - name: Check /srv/ftp directory ownership and permissions
       ansible.builtin.stat:
         path: /srv/ftp
       register: srv_ftp
 
-    - name: Show permission /srv/ftp
+    - name: Show /srv/ftp directory details
       ansible.builtin.debug:
         msg:
           - "Owner: {{ srv_ftp.stat.pw_name }}"
           - "Group: {{ srv_ftp.stat.gr_name }}"
-          - "Permisos: {{ srv_ftp.stat.mode }}"
+          - "Permissions: {{ srv_ftp.stat.mode }}"
+
+    # Users with shell set to nologin or false cannot access FTP
 
     - name: List system users without FTP access
       ansible.builtin.command: >
@@ -107,6 +110,120 @@
       register: no_ftp_users
       changed_when: false
 
-    - name: Show system users without FTP access
+    - name: Show users without FTP access
       ansible.builtin.debug:
         var: no_ftp_users.stdout_lines
+
+    - name: Gather service facts
+      ansible.builtin.service_facts:
+
+    - name: Verify vsftpd service is running
+      ansible.builtin.debug:
+        msg: "vsftpd service state: {{ ansible_facts.services['vsftpd.service'].state }}"
+
+    - name: Verify FTP server is listening on TCP port 21
+      ansible.builtin.shell: ss -tulnp | grep :21
+      register: port21
+      changed_when: false
+
+    - name: Show port 21 listening status
+      ansible.builtin.debug:
+        var: port21.stdout
+
+    - name: Create backup of vsftpd configuration file
+      ansible.builtin.copy:
+        src: /etc/vsftpd.conf
+        dest: /etc/vsftpd.conf.bak
+        remote_src: true
+        owner: root
+        group: root
+        mode: "0644"
+
+    - name: Create local FTP users with passwords
+      ansible.builtin.user:
+        name: "{{ item.name }}"
+        shell: /bin/bash
+        create_home: true
+        password: "{{ item.password_hash }}"
+      loop:
+        - name: luis #luis123
+          password_hash: "$6$UcAGmfZ5oiFzP.rT$08jwkKYHLvITqLdMZ1M8lG0gtIiT1jFZa7wXDOIhhaWDjYGvBiRctUH9cS3iiMn0EMnS9Yu.B/pLLp.dcSE.M0"
+        - name: maria #maria123
+          password_hash: "$6$g7UqNyYyinr7TQBu$3DuFdvJ4lGRU28d3CnfS.8tJI.cLH4h1A4kz30cccJrYbKu.5HqixFiUjdUYr9sHRSLorWFgaJj/vDqT2Vdo9/"
+        - name: miguel #migue123
+          password_hash: "$6$ZJ6YNm4c4ypBt905$EJ90EuiMiemf22Tf5O.vSxIai87ePkrb.hXEdIUzOYv0.o4D8kbZq/jUyrF4wSqTvO4GIEewQ4BIb1zns256y1"
+
+    - name: Create test files in luis home directory
+      ansible.builtin.copy:
+        dest: "/home/luis/{{ item }}"
+        content: "Test file {{ item }} created for user luis\n"
+        owner: luis
+        group: luis
+        mode: "0644"
+      loop:
+        - luis1.txt
+        - luis2.txt
+
+    - name: Create test files in maria home directory
+      ansible.builtin.copy:
+        dest: "/home/maria/{{ item }}"
+        content: "Test file {{ item }} created for user maria\n"
+        owner: maria
+        group: maria
+        mode: "0644"
+      loop:
+        - maria1.txt
+        - maria2.txt
+
+    - name: Message
+      ansible.builtin.copy:
+        src: ../files/secure/.message
+        dest: /srv/ftp/.message
+        owner: root
+        group: root
+        mode: "0644"
+        backup: true
+
+    - name: Vsftpd.conf
+      ansible.builtin.copy:
+        src: ../files/secure/vsftpd.conf
+        dest: /etc/vsftpd.conf
+        owner: root
+        group: root
+        mode: "0640"
+        backup: true
+
+    - name: Vsftpd.chroot_list
+      ansible.builtin.copy:
+        src: ../files/secure/vsftpd.chroot_list
+        dest: /etc/vsftpd.chroot_list
+        owner: root
+        group: root
+        mode: "0640"
+        backup: true
+
+    - name: Generate SSL certificate for FTPS server
+      ansible.builtin.command: >
+        openssl req -x509 -nodes -days 365
+        -newkey rsa:2048
+        -keyout /etc/ssl/certs/example.test.pem
+        -out /etc/ssl/certs/example.test.pem
+        -subj "/C=ES/ST=Lab/L=Lab/O=sistema.sol/OU=IT/CN=ftp.example.test"
+      args:
+        creates: /etc/ssl/certs/example.test.pem
+
+    - name: Restart vsftpd service
+      ansible.builtin.service:
+        name: vsftpd
+        state: restarted
+
+    - name: Verify vsftpd service is running
+      ansible.builtin.service_facts:
+
+    - name: Show vsftpd service state
+      ansible.builtin.debug:
+        msg: "vsftpd service state: {{ ansible_facts.services['vsftpd.service'].state }}"
+
+    - name: Verify FTP server is listening on TCP port 21
+      ansible.builtin.shell: ss -tulnp | grep :21
+      changed_when: false

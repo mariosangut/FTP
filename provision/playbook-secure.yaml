@@ -1,3 +1,4 @@
+---
 - name: FTP Secure Server - System checks and user setup
   hosts: secure
   become: true
@@ -67,9 +68,8 @@
         remote_src: true
         owner: root
         group: root
-        mode: '0644'
+        mode: "0644"
 
-    
     - name: Create local FTP users with passwords
       ansible.builtin.user:
         name: "{{ item.name }}"
@@ -90,7 +90,7 @@
         content: "Test file {{ item }} created for user luis\n"
         owner: luis
         group: luis
-        mode: '0644'
+        mode: "0644"
       loop:
         - luis1.txt
         - luis2.txt
@@ -101,7 +101,7 @@
         content: "Test file {{ item }} created for user maria\n"
         owner: maria
         group: maria
-        mode: '0644'
+        mode: "0644"
       loop:
         - maria1.txt
         - maria2.txt
@@ -112,27 +112,27 @@
         dest: /srv/ftp/.message
         owner: root
         group: root
-        mode: '0644'
+        mode: "0644"
         backup: true
 
-    - name: vsftpd.conf
+    - name: Vsftpd.conf
       ansible.builtin.copy:
         src: ../files/secure/vsftpd.conf
         dest: /etc/vsftpd.conf
         owner: root
         group: root
-        mode: '0640'
+        mode: "0640"
         backup: true
-    
-    - name: vsftpd.chroot_list
+
+    - name: Vsftpd.chroot_list
       ansible.builtin.copy:
         src: ../files/secure/vsftpd.chroot_list
         dest: /etc/vsftpd.chroot_list
         owner: root
         group: root
-        mode: '0640'
+        mode: "0640"
         backup: true
-    
+
     - name: Generate SSL certificate for FTPS server
       ansible.builtin.command: >
         openssl req -x509 -nodes -days 365
