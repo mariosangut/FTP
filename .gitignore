@@ -3,3 +3,4 @@
 !.gitattributes
 !.gitmodules
 !.git/
+ansible-lint

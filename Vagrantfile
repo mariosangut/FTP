@@ -18,4 +18,10 @@ Vagrant.configure("2") do |config|
     secure.vm.network "forwarded_port", guest: 40000, host: 40000
     secure.vm.network "forwarded_port", guest: 40001, host: 40001
   end #secure
+
+   config.vm.provision "ansible" do |ansible|
+    ansible.compatibility_mode = "auto"
+    ansible.playbook = "playbook-setup.yaml"
+  end
+
 end
