@@ -14,5 +14,8 @@ Vagrant.configure("2") do |config|
   config.vm.define "secure" do |secure|
     secure.vm.hostname = "ftp-secure"
     secure.vm.network "private_network", ip: "192.168.58.20", virtualbox__intnet: "internal"
+    secure.vm.network "forwarded_port", guest: 21, host: 2121
+    secure.vm.network "forwarded_port", guest: 40000, host: 40000
+    secure.vm.network "forwarded_port", guest: 40001, host: 40001
   end #secure
 end
