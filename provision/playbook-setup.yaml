@@ -35,7 +35,7 @@
   tasks:
     - name: Vsftpd config
       ansible.builtin.copy:
-        src: ../files/anonymous/vsftpd.conf
+        src: "{{ playbook_dir }}/files/anonymous/vsftpd.conf"
         dest: /etc/vsftpd.conf
         owner: root
         group: root
@@ -52,7 +52,7 @@
 
     - name: Message
       ansible.builtin.copy:
-        src: ../files/anonymous/.message
+        src: "{{ playbook_dir }}/files/anonymous/.message"
         dest: /srv/ftp/.message
         owner: root
         group: root
@@ -66,7 +66,7 @@
 
 # ======================================================
 # SERVER 2 CONFIGURATION
-# ======================================================      
+# ======================================================
 
 - name: TASK 3. SECURE FTP
   hosts: secure
@@ -121,14 +121,15 @@
       ansible.builtin.debug:
         msg: "vsftpd service state: {{ ansible_facts.services['vsftpd.service'].state }}"
 
-    - name: Verify FTP server is listening on TCP port 21
-      ansible.builtin.shell: ss -tulnp | grep :21
-      register: port21
+    - name: Get listening TCP ports
+      ansible.builtin.command: ss -tulnp
+      register: ss_output
       changed_when: false
 
-    - name: Show port 21 listening status
-      ansible.builtin.debug:
-        var: port21.stdout
+    - name: Verify FTP server is listening on TCP port 21
+      ansible.builtin.assert:
+        that:
+          - "'*:21' in ss_output.stdout or '0.0.0.0:21' in ss_output.stdout"
 
     - name: Create backup of vsftpd configuration file
       ansible.builtin.copy:
@@ -146,11 +147,11 @@
         create_home: true
         password: "{{ item.password_hash }}"
       loop:
-        - name: luis #luis123
+        - name: luis # luis123
           password_hash: "$6$UcAGmfZ5oiFzP.rT$08jwkKYHLvITqLdMZ1M8lG0gtIiT1jFZa7wXDOIhhaWDjYGvBiRctUH9cS3iiMn0EMnS9Yu.B/pLLp.dcSE.M0"
-        - name: maria #maria123
+        - name: maria # maria123
           password_hash: "$6$g7UqNyYyinr7TQBu$3DuFdvJ4lGRU28d3CnfS.8tJI.cLH4h1A4kz30cccJrYbKu.5HqixFiUjdUYr9sHRSLorWFgaJj/vDqT2Vdo9/"
-        - name: miguel #migue123
+        - name: miguel # migue123
           password_hash: "$6$ZJ6YNm4c4ypBt905$EJ90EuiMiemf22Tf5O.vSxIai87ePkrb.hXEdIUzOYv0.o4D8kbZq/jUyrF4wSqTvO4GIEewQ4BIb1zns256y1"
 
     - name: Create test files in luis home directory
@@ -177,7 +178,7 @@
 
     - name: Message
       ansible.builtin.copy:
-        src: ../files/secure/.message
+        src: "{{ playbook_dir }}/files/secure/.message"
         dest: /srv/ftp/.message
         owner: root
         group: root
@@ -186,7 +187,7 @@
 
     - name: Vsftpd.conf
       ansible.builtin.copy:
-        src: ../files/secure/vsftpd.conf
+        src: "{{ playbook_dir }}/files/secure/vsftpd.conf"
         dest: /etc/vsftpd.conf
         owner: root
         group: root
@@ -195,7 +196,7 @@
 
     - name: Vsftpd.chroot_list
       ansible.builtin.copy:
-        src: ../files/secure/vsftpd.chroot_list
+        src: "{{ playbook_dir }}/files/secure/vsftpd.chroot_list"
         dest: /etc/vsftpd.chroot_list
         owner: root
         group: root
@@ -224,6 +225,12 @@
       ansible.builtin.debug:
         msg: "vsftpd service state: {{ ansible_facts.services['vsftpd.service'].state }}"
 
-    - name: Verify FTP server is listening on TCP port 21
-      ansible.builtin.shell: ss -tulnp | grep :21
+    - name: Get listening TCP ports
+      ansible.builtin.command: ss -tulnp
+      register: ss_output
       changed_when: false
+
+    - name: Verify FTP server is listening on TCP port 21
+      ansible.builtin.assert:
+        that:
+          - "'*:21' in ss_output.stdout or '0.0.0.0:21' in ss_output.stdout"
