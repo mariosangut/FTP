@@ -26,26 +26,36 @@ El proyecto se ha desarrollado en un entorno académico con el objetivo de aplic
 ## Estructura del repositorio
 
 ```text
-├── README.md
-├── Vagrantfile
+.
 ├── ansible.cfg
 ├── docs
-│   ├── arquitectura
-│   ├── evidences
-│   │   ├── ansible-lint-after.png
-│   │   └── ansible-lint-before.png
-│   ├── ftp-anonimo.html
-│   ├── ftp-seguro.html
-│   └── proyecto-vagrant-ansible.html
+│   ├── arquitectura
+│   ├── evidences
+│   │   ├── 6.2.1.png
+│   │   ├── 6.2.3-luis.png
+│   │   ├── 6.2.3-maria.png
+│   │   ├── ansible-lint-after.png
+│   │   ├── ansible-lint-before.png
+│   │   ├── filezilla-descarga.png
+│   │   └── filezilla-luis.png
+│   ├── ftp-anonimo.html
+│   ├── ftp-seguro.html
+│   ├── Guia_despliegue_y_uso_servidor_FTP.pdf
+│   ├── guia.odt
+│   └── proyecto-vagrant-ansible.html
 ├── files
-│   ├── anonymous
-│   │   ├── comprobaciones.txt
-│   │   └── vsftpd.conf
-│   └── secure
-│       ├── vsftpd.chroot_list
-│       └── vsftpd.conf
+│   ├── anonymous
+│   │   ├── comprobaciones.txt
+│   │   └── vsftpd.conf
+│   ├── resolv.conf
+│   └── secure
+│       ├── vsftpd.chroot_list
+│       └── vsftpd.conf
 ├── hosts.ini
-└── playbook-setup.yaml
+├── playbook-setup.yaml
+├── README.md
+└── Vagrantfile
+
 ```
 ## Arquitectura general
 
