@@ -3,4 +3,5 @@
 !.gitattributes
 !.gitmodules
 !.git/
-ansible-lint
+!.message
+*.odt
