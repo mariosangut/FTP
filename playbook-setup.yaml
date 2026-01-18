@@ -33,7 +33,7 @@
       ansible.builtin.apt:
         name: ftp
         state: present
-
+    
 # ======================================================
 # SERVER 1 CONFIGURATION
 # ======================================================
@@ -72,6 +72,13 @@
       ansible.builtin.systemd:
         name: vsftpd
         state: restarted
+    
+    - name: Add FTP hostname to /etc/hosts
+      ansible.builtin.lineinfile:
+        path: /etc/hosts
+        line: "192.168.58.20 ftp.example.test"
+        state: present
+        create: true 
 
 # ======================================================
 # SERVER 2 CONFIGURATION
